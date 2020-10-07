@@ -1,0 +1,7 @@
+C:\Users\Odin\source\repos\BoardGen\BoardGen\bin\Debug\BoardGen.exe.config
+C:\Users\Odin\source\repos\BoardGen\BoardGen\bin\Debug\BoardGen.exe
+C:\Users\Odin\source\repos\BoardGen\BoardGen\bin\Debug\BoardGen.pdb
+C:\Users\Odin\source\repos\BoardGen\BoardGen\obj\Debug\BoardGen.csprojAssemblyReference.cache
+C:\Users\Odin\source\repos\BoardGen\BoardGen\obj\Debug\BoardGen.csproj.CoreCompileInputs.cache
+C:\Users\Odin\source\repos\BoardGen\BoardGen\obj\Debug\BoardGen.exe
+C:\Users\Odin\source\repos\BoardGen\BoardGen\obj\Debug\BoardGen.pdb
