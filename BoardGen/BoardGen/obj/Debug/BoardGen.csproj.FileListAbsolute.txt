@@ -5,3 +5,7 @@ C:\Users\Odin\source\repos\BoardGen\BoardGen\obj\Debug\BoardGen.csprojAssemblyRe
 C:\Users\Odin\source\repos\BoardGen\BoardGen\obj\Debug\BoardGen.csproj.CoreCompileInputs.cache
 C:\Users\Odin\source\repos\BoardGen\BoardGen\obj\Debug\BoardGen.exe
 C:\Users\Odin\source\repos\BoardGen\BoardGen\obj\Debug\BoardGen.pdb
+C:\Users\dakot\Documents\GitHub\RougeGame\BoardGen\BoardGen\obj\Debug\BoardGen.csprojAssemblyReference.cache
+C:\Users\dakot\Documents\GitHub\RougeGame\BoardGen\BoardGen\obj\Debug\BoardGen.csproj.CoreCompileInputs.cache
+C:\Users\dakot\Documents\GitHub\RougeGame\BoardGen\BoardGen\obj\Debug\BoardGen.exe
+C:\Users\dakot\Documents\GitHub\RougeGame\BoardGen\BoardGen\obj\Debug\BoardGen.pdb

@@ -199,14 +199,36 @@ namespace BrandonPlayerGen
         // placeStairs should be called last so a corridor does not go overtop of it.
         public Tile[,,] placeStairs()
         {
-            for (int z = 0; z < (NumofFloors-1); z++)
+            for (int z = 0; z < (NumofFloors); z++)
             {
                 int randommidpoint = Random.randInt(0, (NumofRooms));
                 int randomx = midpointCoords[z, randommidpoint, 0];
                 int randomy = midpointCoords[z, randommidpoint, 1];
-                Tile stairs = new Tile("^", ConsoleColor.Red, ConsoleColor.Yellow,
+                int randommidpoint2 = Random.randInt(0, (NumofRooms));
+                int randomx2 = midpointCoords[z, randommidpoint2, 0];
+                int randomy2 = midpointCoords[z, randommidpoint2, 1];
+                if(z == 0)
+                {
+                    Tile stairs = new Tile("v", ConsoleColor.Red, ConsoleColor.Yellow,
                     true, false);
-                board[z, randomx, randomy] = stairs;
+                    board[z, randomx, randomy] = stairs;
+                }
+                else if(z == NumofFloors)
+                {
+                    Tile stairs2 = new Tile("^", ConsoleColor.Red, ConsoleColor.Yellow,
+                    true, false);
+                    board[z, randomx2, randomy2] = stairs2;
+                }
+                else{
+                    Tile stairs = new Tile("v", ConsoleColor.Red, ConsoleColor.Yellow,
+                    true, false);
+                    board[z, randomx, randomy] = stairs;
+                    Tile stairs2 = new Tile("^", ConsoleColor.Red, ConsoleColor.Yellow,
+                    true, false);
+                    board[z, randomx2, randomy2] = stairs2;
+                }
+
+                
             }
             return board;
         }
@@ -214,7 +236,7 @@ namespace BrandonPlayerGen
         public Tile[,,] placePlayer(int current_level)
         {
             int randommidpoint = Random.randInt(current_level, (NumofRooms-1));
-            int randomx = Random.randInt((midpointCoords[current_level, randommidpoint, 0])-2,(midpointCoords[current_level, randommidpoint, 0]+2));
+            int randomx = Random.randInt((midpointCoords[current_level, randommidpoint, 0])-1,(midpointCoords[current_level, randommidpoint, 0]+1));
             int randomy = Random.randInt(((midpointCoords[current_level, randommidpoint, 1]) - 2), (midpointCoords[current_level, randommidpoint, 1] + 2));
             Tile player = new Tile("@", ConsoleColor.Green, ConsoleColor.Black, false, true);
 
@@ -233,7 +255,7 @@ namespace BrandonPlayerGen
             {
                 for (int j = 0; j < (width - 1); j++)
                 {
-
+                    Console.SetCursorPosition(j,i);
                     board[currentLevel, i, j].DrawTile();
                 }
                 Console.Write("\n");
@@ -325,6 +347,31 @@ namespace BrandonPlayerGen
 
         }
 
+        public void UpdateStatus(Player p)
+        {
+            Console.BackgroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.SetCursorPosition(108, 10);
+            Console.Write("Status");
+            Console.SetCursorPosition(105, 12);
+            Console.Write("Dungeon Level: " + playerCords[0]);
+            Console.SetCursorPosition(105, 15);
+            Console.Write("Name: " + p.name);
+            Console.SetCursorPosition(105, 18);
+            Console.Write("Level: " + p.level);
+            Console.SetCursorPosition(105, 21);
+            Console.Write("HP: " + p.Health);
+            Console.SetCursorPosition(105, 24);
+            Console.Write("ATK: " + p.ATK + "  DEF: " + p.DEF);
+        }
+
+        public void updateFloor()
+        {
+            Console.BackgroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.SetCursorPosition(105, 12);
+            Console.Write("Dungeon Level: " + (playerCords[0]+1));
+        }
 
         public Tile[,,] CommandPlayer()
         {
@@ -336,10 +383,39 @@ namespace BrandonPlayerGen
                 }
                 else if (board[playerCords[0], (playerCords[ 1] - 1), playerCords[2]].stairs)
                 {
-                    playerCords[0]++;
-                    placePlayer(playerCords[0]);
-                    Console.Clear();
-                    showBoard(playerCords[0]);
+                    Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
+                    board[playerCords[0], playerCords[1], playerCords[2]] = floor;
+                    if (board[playerCords[0], (playerCords[1] - 1), playerCords[2]].symbol == "v")
+                    {
+                        if ((playerCords[0] + 1) == NumofFloors)
+                        {
+
+                        }
+
+                        else
+                        {
+                            
+                            playerCords[0]++;
+                            placePlayer(playerCords[0]);
+                            showBoard(playerCords[0]);
+                            updateFloor();
+                        }
+                    }
+
+                    else if (board[playerCords[0], (playerCords[1] - 1), playerCords[2]].symbol == "^")
+                    {
+                        if ((playerCords[0] - 1) == NumofFloors)
+                        {
+
+                        }
+                        else
+                        {
+                            playerCords[0]--;
+                            placePlayer(playerCords[0]);
+                            showBoard(playerCords[0]);
+                            updateFloor();
+                        }
+                    }
                 }
                 else
                 {
@@ -363,10 +439,38 @@ namespace BrandonPlayerGen
                 }
                 else if (board[playerCords[0], (playerCords[1] + 1), playerCords[2]].stairs)
                 {
-                    playerCords[0]++;
-                    placePlayer(playerCords[0]);
-                    Console.Clear();
-                    showBoard(playerCords[0]);
+                    Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
+                    board[playerCords[0], playerCords[1], playerCords[2]] = floor;
+                    if (board[playerCords[0], (playerCords[1] +1 ), playerCords[2]].symbol == "v")
+                    {
+                        if ((playerCords[0] + 1) == NumofFloors)
+                        {
+
+                        }
+
+                        else
+                        {
+                            playerCords[0]++;
+                            placePlayer(playerCords[0]);
+                            showBoard(playerCords[0]);
+                            updateFloor();
+                        }
+                    }
+
+                    else if (board[playerCords[0], (playerCords[1] + 1), playerCords[2]].symbol == "^")
+                    {
+                        if ((playerCords[0] - 1) == NumofFloors)
+                        {
+
+                        }
+                        else
+                        {
+                            playerCords[0]--;
+                            placePlayer(playerCords[0]);
+                            showBoard(playerCords[0]);
+                            updateFloor();
+                        }
+                    }
                 }
                 else
                 {
@@ -390,10 +494,40 @@ namespace BrandonPlayerGen
                 }
                 else if (board[playerCords[0], (playerCords[1]), playerCords[2]-1].stairs)
                 {
-                    playerCords[0]++;
-                    placePlayer(playerCords[0]);
-                    Console.Clear();
-                    showBoard(playerCords[0]);
+                    Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
+                    board[playerCords[0], playerCords[1], playerCords[2]] = floor;
+                    if (board[playerCords[0], (playerCords[1]), playerCords[2]-1].symbol == "v")
+                    {
+                        if ((playerCords[0] + 1) == NumofFloors)
+                        {
+
+                        }
+
+                        else
+                        {
+                            playerCords[0]++;
+                            placePlayer(playerCords[0]);
+                            showBoard(playerCords[0]);
+                            updateFloor();
+                        }
+                    }
+
+                    else if (board[playerCords[0], (playerCords[1]), playerCords[2]-1].symbol == "^")
+                    {
+                       
+                        if ((playerCords[0] - 1) == NumofFloors)
+                        {
+
+                        }
+                        else
+                        {
+                            
+                            playerCords[0]--;
+                            placePlayer(playerCords[0]);
+                            showBoard(playerCords[0]);
+                            updateFloor();
+                        }
+                    }
                 }
                 else
                 {
@@ -417,11 +551,39 @@ namespace BrandonPlayerGen
                 }
                 else if (board[playerCords[0], (playerCords[1]), playerCords[2] + 1].stairs)
                 {
-                    playerCords[0]++;
-                    placePlayer(playerCords[0]);
-                    Console.Clear();
-                    showBoard(playerCords[0]);
-                    
+                    Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
+                    board[playerCords[0], playerCords[1], playerCords[2]] = floor;
+                    if (board[playerCords[0], (playerCords[1]), playerCords[2]+1].symbol == "v")
+                    {
+                        if ((playerCords[0] + 1) == NumofFloors)
+                        {
+
+                        }
+
+                        else
+                        {
+                            playerCords[0]++;
+                            placePlayer(playerCords[0]);
+                            showBoard(playerCords[0]);
+                            updateFloor();
+                        }
+                    }
+
+                    else if (board[playerCords[0], (playerCords[1]), playerCords[2]+1].symbol == "^")
+                    {
+                        if ((playerCords[0] - 1) == NumofFloors)
+                        {
+
+                        }
+                        else
+                        {
+                            playerCords[0]--;
+                            placePlayer(playerCords[0]);
+                            showBoard(playerCords[0]);
+                            updateFloor();
+                        }
+                    }
+
                 }
                 else
                 {
@@ -439,12 +601,14 @@ namespace BrandonPlayerGen
 
             return board;
         }
-        //((playerCords[2]-1)<0||
-          //             (playerCords[2]+1)>width)
-
-
-
 
         
+        //((playerCords[2]-1)<0||
+        //             (playerCords[2]+1)>width)
+
+
+
+
+
     }
 }

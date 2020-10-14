@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BrandonPlayerGen
 {
-    class Player
+    public class Player
     {
         public string name;
         public int ATK;
@@ -125,11 +125,12 @@ namespace BrandonPlayerGen
             
         }
 
-        public void LevelUp()
+        public void LevelUp(Board b, Player p)
         {
             Health += Random.randInt(4, 8);
             ATK += Random.randInt(2, 4);
             DEF += Random.randInt(2, 4);
+            b.UpdateStatus(p);
         }
 
         
