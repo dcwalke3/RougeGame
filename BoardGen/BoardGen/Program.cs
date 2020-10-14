@@ -45,6 +45,8 @@ namespace BoardGen
                 Console.BackgroundColor = ConsoleColor.White;
                 Console.SetCursorPosition(0,63);
                 map.CommandPlayer();
+                Monster s = new Monster();
+                
                 
                 if (p.Health <= 0) {
                     break;
