@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BoardGen;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BrandonPlayerGen
 {
-    public class Player
+    public class Player: GameCharacter, IActor
     {
         public string name;
         public int ATK;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BoardGen
 {
-	abstract class GameCharacter
+	public abstract class GameCharacter
 	{
 		public string _ID { get; } = Guid.NewGuid().ToString("N");
 		public int health { get; set; }
