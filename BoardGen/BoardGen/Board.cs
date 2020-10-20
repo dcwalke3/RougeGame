@@ -1,4 +1,5 @@
-﻿using BrandonPlayerGen;
+﻿using BoardGen;
+using BrandonPlayerGen;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -35,7 +36,7 @@ namespace BrandonPlayerGen
             CreateRooms();
             MakeCorridors();
             placeStairs();
-            placePlayer(0);
+            
             
         }
         
@@ -210,21 +211,21 @@ namespace BrandonPlayerGen
                 if(z == 0)
                 {
                     Tile stairs = new Tile("v", ConsoleColor.Red, ConsoleColor.Yellow,
-                    true, false);
+                    true);
                     board[z, randomx, randomy] = stairs;
                 }
                 else if(z == NumofFloors)
                 {
                     Tile stairs2 = new Tile("^", ConsoleColor.Red, ConsoleColor.Yellow,
-                    true, false);
+                    true);
                     board[z, randomx2, randomy2] = stairs2;
                 }
                 else{
                     Tile stairs = new Tile("v", ConsoleColor.Red, ConsoleColor.Yellow,
-                    true, false);
+                    true);
                     board[z, randomx, randomy] = stairs;
                     Tile stairs2 = new Tile("^", ConsoleColor.Red, ConsoleColor.Yellow,
-                    true, false);
+                    true);
                     board[z, randomx2, randomy2] = stairs2;
                 }
 
@@ -233,17 +234,27 @@ namespace BrandonPlayerGen
             return board;
         }
 
-        public Tile[,,] placePlayer(int current_level)
+        public Tile[,,] placeActor(int current_level, IActor a=null)
         {
-            int randommidpoint = Random.randInt(current_level, (NumofRooms-1));
-            int randomx = Random.randInt((midpointCoords[current_level, randommidpoint, 0])-1,(midpointCoords[current_level, randommidpoint, 0]+1));
-            int randomy = Random.randInt(((midpointCoords[current_level, randommidpoint, 1]) - 2), (midpointCoords[current_level, randommidpoint, 1] + 2));
-            Tile player = new Tile("@", ConsoleColor.Green, ConsoleColor.Black, false, true);
+            
+            int randomx = Random.randInt(0, height-1);
+            int randomy = Random.randInt(0,width-1);
+            while (board[current_level,randomx,randomy].symbol == "#" || board[current_level, randomx, randomy].Occupied == a || board[current_level,randomx,randomy].stairs)
+            {
+                randomx = Random.randInt(0, height - 1);
+                randomy = Random.randInt(0, width - 1);
+            }
+            Tile actor = new Tile(a.symbol, a.foreColor, a.backColor, false, true);
 
-            board[current_level, randomx, randomy]=player;
-            playerCords[0] = current_level;
-            playerCords[1] = randomx;
-            playerCords[2] = randomy;
+            board[current_level, randomx, randomy]=actor;
+            if (a.symbol == "@")
+            {
+                playerCords[0] = current_level;
+                playerCords[1] = randomx;
+                playerCords[2] = randomy;
+            }
+            a.row = randomx;
+            a.col = randomy;
             return board;
         }
 
@@ -373,9 +384,10 @@ namespace BrandonPlayerGen
             Console.Write("Dungeon Level: " + (playerCords[0]+1));
         }
 
-        public Tile[,,] CommandPlayer()
+        public Tile[,,] Move()
         {
-            while(Console.ReadKey(true).Key == ConsoleKey.W)
+            var keyCheck = Console.ReadKey(true).Key;
+            if(keyCheck == ConsoleKey.W)
             {
                 if ((playerCords[ 1] - 1) < 0|| board[playerCords[0],(playerCords[1]-1),playerCords[2]].symbol=="#")
                 {
@@ -396,7 +408,7 @@ namespace BrandonPlayerGen
                         {
                             
                             playerCords[0]++;
-                            placePlayer(playerCords[0]);
+                            placeActor(playerCords[0]);
                             showBoard(playerCords[0]);
                             updateFloor();
                         }
@@ -411,7 +423,7 @@ namespace BrandonPlayerGen
                         else
                         {
                             playerCords[0]--;
-                            placePlayer(playerCords[0]);
+                            placeActor(playerCords[0]);
                             showBoard(playerCords[0]);
                             updateFloor();
                         }
@@ -431,7 +443,7 @@ namespace BrandonPlayerGen
                 }
                 
             }
-            while (Console.ReadKey(true).Key == ConsoleKey.S)
+            else if(keyCheck == ConsoleKey.S)
             {
                 if((playerCords[0] + 1 > (height - 1)) || board[playerCords[0], (playerCords[1] + 1), playerCords[2]].symbol == "#")
                 {
@@ -451,7 +463,7 @@ namespace BrandonPlayerGen
                         else
                         {
                             playerCords[0]++;
-                            placePlayer(playerCords[0]);
+                            placeActor(playerCords[0]);
                             showBoard(playerCords[0]);
                             updateFloor();
                         }
@@ -466,7 +478,7 @@ namespace BrandonPlayerGen
                         else
                         {
                             playerCords[0]--;
-                            placePlayer(playerCords[0]);
+                            placeActor(playerCords[0]);
                             showBoard(playerCords[0]);
                             updateFloor();
                         }
@@ -486,7 +498,7 @@ namespace BrandonPlayerGen
                 }
             }
 
-            while(Console.ReadKey(true).Key == ConsoleKey.A)
+            else if(keyCheck == ConsoleKey.A)
             {
                 if((playerCords[2] - 1) < 0 || board[playerCords[0], playerCords[1], (playerCords[2]-1)].symbol == "#")
                 {
@@ -506,7 +518,7 @@ namespace BrandonPlayerGen
                         else
                         {
                             playerCords[0]++;
-                            placePlayer(playerCords[0]);
+                            placeActor(playerCords[0]);
                             showBoard(playerCords[0]);
                             updateFloor();
                         }
@@ -523,7 +535,7 @@ namespace BrandonPlayerGen
                         {
                             
                             playerCords[0]--;
-                            placePlayer(playerCords[0]);
+                            placeActor(playerCords[0]);
                             showBoard(playerCords[0]);
                             updateFloor();
                         }
@@ -543,7 +555,7 @@ namespace BrandonPlayerGen
                 }
             }
 
-            while(Console.ReadKey(true).Key == ConsoleKey.D)
+            else if(keyCheck==ConsoleKey.D)
             {
                 if ((playerCords[2] + 1) < 0 || board[playerCords[0], playerCords[1], (playerCords[2] + 1)].symbol == "#")
                 {
@@ -563,7 +575,7 @@ namespace BrandonPlayerGen
                         else
                         {
                             playerCords[0]++;
-                            placePlayer(playerCords[0]);
+                            placeActor(playerCords[0]);
                             showBoard(playerCords[0]);
                             updateFloor();
                         }
@@ -578,7 +590,7 @@ namespace BrandonPlayerGen
                         else
                         {
                             playerCords[0]--;
-                            placePlayer(playerCords[0]);
+                            placeActor(playerCords[0]);
                             showBoard(playerCords[0]);
                             updateFloor();
                         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BoardGen;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,14 +13,15 @@ namespace BrandonPlayerGen
         public ConsoleColor foreColor;
         public ConsoleColor backColor;
         public bool stairs;
-        public bool Occupied;
+        public IActor Occupied;
         public bool enemy;
         public bool npc;
         
 
         public Tile(string boardSymbol, ConsoleColor
-            back, ConsoleColor fore, bool stairsHere = false,
-            bool playerHere = false, bool enemyHere = false,
+            back, ConsoleColor fore, bool stairsHere = false, 
+            IActor playerHere = null,
+            bool enemyHere = false,
             bool NPC = false)
         {
             backColor = back;

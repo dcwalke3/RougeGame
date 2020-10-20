@@ -29,7 +29,7 @@ namespace BoardGen
 	}
 
 
-	interface IActor
+	public interface IActor
 	{
 		int row { get; set; }
 		int col { get; set; }
