@@ -244,7 +244,7 @@ namespace BrandonPlayerGen
                 randomx = Random.randInt(0, height - 1);
                 randomy = Random.randInt(0, width - 1);
             }
-            Tile actor = new Tile(a.symbol, a.foreColor, a.backColor, false, true);
+            Tile actor = new Tile(a.symbol, a.foreColor, a.backColor, false);
 
             board[current_level, randomx, randomy]=actor;
             if (a.symbol == "@")
@@ -302,7 +302,7 @@ namespace BrandonPlayerGen
                 {
                     for (int j = 0; j < (width); j++)
                     {
-                        if (board[z, i, j].Occupied)
+                        if (board[z, i, j].symbol=="@")
                         {
                             playerCords[0] = z;
                             playerCords[1] = i;
@@ -432,7 +432,7 @@ namespace BrandonPlayerGen
                 else
                 {
                     Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("@", ConsoleColor.Green, ConsoleColor.Black, false, true);
+                    Tile player = new Tile("@", ConsoleColor.Green, ConsoleColor.Black, false);
                     board[playerCords[0], (playerCords[1] - 1), playerCords[2]] = player;
                     board[playerCords[0], (playerCords[1]), playerCords[ 2]] = floor;
                     Console.SetCursorPosition(playerCords[2], (playerCords[1]));
@@ -487,7 +487,7 @@ namespace BrandonPlayerGen
                 else
                 {
                     Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("@", ConsoleColor.Green, ConsoleColor.Black, false, true);
+                    Tile player = new Tile("@", ConsoleColor.Green, ConsoleColor.Black, false);
                     board[playerCords[0], (playerCords[1] + 1), playerCords[2]] = player;
                     board[playerCords[0], (playerCords[1]), playerCords[2]] = floor;
                     Console.SetCursorPosition(playerCords[2], (playerCords[1]));
@@ -544,7 +544,7 @@ namespace BrandonPlayerGen
                 else
                 {
                     Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("@", ConsoleColor.Green, ConsoleColor.Black, false, true);
+                    Tile player = new Tile("@", ConsoleColor.Green, ConsoleColor.Black, false);
                     board[playerCords[0], (playerCords[1]), playerCords[2] - 1] = player;
                     board[playerCords[0], (playerCords[1]), playerCords[2]] = floor;
                     Console.SetCursorPosition((playerCords[2] - 1), playerCords[1]);
@@ -600,7 +600,7 @@ namespace BrandonPlayerGen
                 else
                 {
                     Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("@", ConsoleColor.Green, ConsoleColor.Black, false, true);
+                    Tile player = new Tile("@", ConsoleColor.Green, ConsoleColor.Black, false);
                     board[playerCords[0], (playerCords[1]), playerCords[2] + 1] = player;
                     board[playerCords[0], (playerCords[1]), playerCords[2]] = floor;
                     Console.SetCursorPosition((playerCords[2]), playerCords[1]);

@@ -101,7 +101,7 @@ namespace BoardGen
                 else
                 {
                     Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("!", ConsoleColor.Red, ConsoleColor.Yellow, false, true);
+                    Tile player = new Tile("!", ConsoleColor.Red, ConsoleColor.Yellow, false);
                     b.board[b.playerCords[0], (b.playerCords[1] - 1), b.playerCords[2]] = player;
                     b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]] = floor;
                     Console.SetCursorPosition(b.playerCords[2], (b.playerCords[1]));
@@ -156,7 +156,7 @@ namespace BoardGen
                 else
                 {
                     Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("!",ConsoleColor.Red, ConsoleColor.Yellow,false, true);
+                    Tile player = new Tile("!",ConsoleColor.Red, ConsoleColor.Yellow,false);
                     b.board[b.playerCords[0], (b.playerCords[1] + 1), b.playerCords[2]] = player;
                     b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]] = floor;
                     Console.SetCursorPosition(b.playerCords[2], (b.playerCords[1]));
@@ -213,7 +213,7 @@ namespace BoardGen
                 else
                 {
                     Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("!", ConsoleColor.Red, ConsoleColor.Yellow, false, true);
+                    Tile player = new Tile("!", ConsoleColor.Red, ConsoleColor.Yellow, false);
                     b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] - 1] = player;
                     b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]] = floor;
                     Console.SetCursorPosition((b.playerCords[2] - 1), b.playerCords[1]);
@@ -269,7 +269,7 @@ namespace BoardGen
                 else
                 {
                     Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("!", ConsoleColor.Red, ConsoleColor.Yellow, false, true);
+                    Tile player = new Tile("!", ConsoleColor.Red, ConsoleColor.Yellow, false);
                     b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] + 1] = player;
                     b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]] = floor;
                     Console.SetCursorPosition((b.playerCords[2]), b.playerCords[1]);
