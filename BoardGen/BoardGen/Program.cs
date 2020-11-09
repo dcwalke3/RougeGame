@@ -68,17 +68,27 @@ namespace BoardGen
                 
                 Console.SetCursorPosition(0,63);
                 p.Move(map,p);
-               
-                for (int i=0; i<monsters.Count;i++)
+
+                for (int i = 0; i < monsters.Count; i++)
                 {
                     if (monsters[i].health <= 0)
-                    {                        
+                    {
                         monsters[i].Death(map);
+                        Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
+                        IActor monster = monsters[i];
+                        map.board[monster.row, monster.col] = floor;
                         monsters.RemoveAt(i);
-                        
-                    }
+                        Monster m = new Monster(p);
+                        monsters.Add(m);
+                        map.placeActor(m);
+                        map.showBoard();
 
-                    monsters[i].Move(map, monsters[i]);
+                    }
+                    else
+                    {
+
+                        monsters[i].Move(map, monsters[i]);
+                    }
                 }
 
 

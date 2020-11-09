@@ -16,7 +16,7 @@ namespace BoardGen
         {
             get; set;
         }
-        public Monster(Player a)
+        public Monster(IActor a)
         {
             level = BrandonPlayerGen.Random.randInt(a.level - 2, a.level + 2);
             if (level <= 0)

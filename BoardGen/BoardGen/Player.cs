@@ -116,7 +116,7 @@ namespace BrandonPlayerGen
                 MaxHealth = (StaticRandom.Instance.Next(50, 100) + (level*5));
                 Health = MaxHealth;
                 ATK = (StaticRandom.Instance.Next(10, 20) + level);
-                DEF = (StaticRandom.Instance.Next(10, 20) + level);
+                DEF = (StaticRandom.Instance.Next(5,15) + level);
                 History = $"\nYou are a {job} from {HomeTown}. \nYour Parents " +
                 $"statuses are {Parents}.\n {trivia}";
 
@@ -192,7 +192,7 @@ namespace BrandonPlayerGen
         public void checkLevelUP(Board board, IActor m)
         {
             
-            int XPGained = (int)Math.Floor((decimal)Math.Pow((m.level + 10),1.2));
+            int XPGained = (int)Math.Floor((decimal)Math.Pow((m.level +2),1.2));
             TotalXP += XPGained;
             CurrentXP += XPGained;
             XPNeeded = (int)Math.Floor(Math.Pow((level - 1 + level), 1.2));
@@ -221,7 +221,7 @@ namespace BrandonPlayerGen
         {
             MaxHealth += Random.randInt(8, 16);
             ATK += Random.randInt(4, 8);
-            DEF += Random.randInt(4,8);
+            DEF += Random.randInt(2,4);
             level++;
             CurrentXP = xpsurplus;
             checkLevelUP(b,a);
@@ -304,7 +304,7 @@ namespace BrandonPlayerGen
 
 
                 Console.SetCursorPosition(50,19);
-                Console.Write("Combat Log");
+                Console.Write("~~Combat Log~~");
 
                 for (int i=16; i < 97; i++)
                 {
@@ -347,8 +347,14 @@ namespace BrandonPlayerGen
                     var entry = Console.ReadKey(true).Key;
                     if(entry == ConsoleKey.N)
                     {
-                        int attackDealt = ATK - a.defense;
-                        int damagetaken = a.attack - DEF;
+                        int AttackBonus = Random.randInt((int)Math.Floor(ATK * -.25), (int)Math.Floor(ATK * .25));
+                        int TempAttack = ATK;
+                         TempAttack+= AttackBonus;
+                        int tempDefense = DEF;
+                        int DefenseBonus = Random.randInt((int)Math.Floor(DEF * -.25), (int)Math.Floor(DEF * .25));
+                        tempDefense += DefenseBonus;
+                        int attackDealt = TempAttack - a.defense;
+                        int damagetaken = a.attack - tempDefense;
                         if (damagetaken < 0)
                         {
                             damagetaken = 0;
@@ -379,6 +385,10 @@ namespace BrandonPlayerGen
                     {
                         int tempAttack = (int)Math.Floor(ATK * 1.5);
                         int tempDefense = (int)Math.Floor(DEF *.5);
+                        int AttackBonus = Random.randInt((int)Math.Floor(ATK * -.25), (int)Math.Floor(ATK * .25));
+                        tempAttack += AttackBonus;
+                        int DefenseBonus = Random.randInt((int)Math.Floor(DEF * -.25), (int)Math.Floor(DEF * .25));
+                        tempDefense += DefenseBonus;
                         int attackDealt = tempAttack - a.defense;
                         int damagetaken = a.attack - tempDefense;
                         if (damagetaken < 0)
@@ -410,7 +420,11 @@ namespace BrandonPlayerGen
                     {
                         int tempAttack = 0;
                         int tempDefense = DEF * 2;
-                        int attackDealt = tempAttack - a.defense;
+                        int AttackBonus = Random.randInt((int)Math.Floor(ATK * -.25), (int)Math.Floor(ATK * .25));
+                        tempAttack += AttackBonus;
+                        int DefenseBonus = Random.randInt((int)Math.Floor(DEF * -.25), (int)Math.Floor(DEF * .25));
+                        tempDefense += DefenseBonus;
+                        int attackDealt =  tempAttack- a.defense;
                         int damagetaken = a.attack - tempDefense;
                         if (damagetaken < 0)
                         {
@@ -439,7 +453,7 @@ namespace BrandonPlayerGen
                     }
                     else
                     {
-                        Console.SetCursorPosition(20, 55);
+                        Console.SetCursorPosition(20, 54);
                         Console.Write("Invalid Input: Hurry and pick a new option.");
                     }
 
