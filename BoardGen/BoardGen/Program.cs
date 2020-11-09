@@ -24,7 +24,7 @@ namespace BoardGen
             while (true)
             {
                 
-                p = new Player(10, map);
+                p = new Player(1, map);
                 
                 Console.WriteLine(p);
                 Console.Write("\nWould you like a new character Y/n: ");
@@ -68,7 +68,7 @@ namespace BoardGen
                 
                 Console.SetCursorPosition(0,63);
                 p.Move(map,p);
-                p.Death(map);
+               
                 for (int i=0; i<monsters.Count;i++)
                 {
                     if (monsters[i].health <= 0)

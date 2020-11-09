@@ -12,34 +12,33 @@ namespace BoardGen
 {
     public class Monster : GameCharacter, IActor
     {
-
+        public int level
+        {
+            get; set;
+        }
         public Monster(Player a)
         {
+            level = BrandonPlayerGen.Random.randInt(a.level - 2, a.level + 2);
+            if (level <= 0)
+            {
+                level = 1;
+            }
             attack = (level* 3) + 10;
-            defense = ( level* 2) + 10;
+            defense = (level* 2) + 10;
             health = (level + 15) * 2;
 
 
             string[] namelist = { "Kobol", "Goblin", "Orc", "Goblin Mage",
-                                   "Hellfire Wolf", "Minotaur", "Skeleton Warrior",
-                                   "Undead Lynch"};
+                                    "Hellfire Wolf", "Minotaur", "Skeleton Warrior",
+                                    "Undead Lynch"};
             name = BrandonPlayerGen.Random.Choice(namelist);
 
-
         }
+        
 
 
 
-        int IActor.level 
-        { 
-            get {
-                return 1;
-                }
-            set
-            {
-
-            }
-        }
+       
            
         int IActor.row { get; set; }
         int IActor.col { get; set; }

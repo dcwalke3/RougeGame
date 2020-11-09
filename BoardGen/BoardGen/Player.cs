@@ -189,20 +189,20 @@ namespace BrandonPlayerGen
         /// <param name="board">Map</param>
         /// <param name="player">Player</param>
         /// <param name="m">Monster killed</param>
-        public void checkLevelUP(Board board, Player player, Monster m=null)
+        public void checkLevelUP(Board board, IActor m)
         {
             
-            int XPGained = (int)Math.Floor((m.level + 5) * 1.2);
+            int XPGained = (int)Math.Floor((decimal)Math.Pow((m.level + 10),1.2));
             TotalXP += XPGained;
             CurrentXP += XPGained;
-            XPNeeded = (int)Math.Floor((level - 1 + level) * 1.2);
+            XPNeeded = (int)Math.Floor(Math.Pow((level - 1 + level), 1.2));
             Console.SetCursorPosition(5, 58);
             Console.Write($"You gained {XPGained} EXP.");
             if (CurrentXP > XPNeeded)
             {
 
                 int xpgained = CurrentXP - XPNeeded;
-                LevelUp(board, player,xpgained);
+                LevelUp(board, m,xpgained);
             }
             else
             {
@@ -217,26 +217,42 @@ namespace BrandonPlayerGen
         /// <param name="b">Map.</param>
         /// <param name="p">Player.</param>
         /// <param name="xpsurplus">The excess amount of EXP gained.</param>
-        public void LevelUp(Board b, Player p, int xpsurplus)
+        public void LevelUp(Board b, IActor a,int xpsurplus)
         {
             MaxHealth += Random.randInt(8, 16);
             ATK += Random.randInt(4, 8);
             DEF += Random.randInt(4,8);
             level++;
             CurrentXP = xpsurplus;
-            checkLevelUP(b, p);
+            checkLevelUP(b,a);
             Health = MaxHealth;
             XPNeeded = (int)Math.Floor((level - 1 + level) * 1.2);
             Console.SetCursorPosition(5, 59);
             Console.Write($"You have increased your level to lvl {level}");
-            b.UpdateStatus(p);
+            
         }
 
-        
 
 
-        
-        
+        public void UpdateStatus()
+        {
+            Console.BackgroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.SetCursorPosition(108, 10);
+            Console.Write("Status");
+            Console.SetCursorPosition(105, 15);
+            Console.Write("Name: " + name);
+            Console.SetCursorPosition(105, 18);
+            Console.Write("Level: " + level);
+            Console.SetCursorPosition(105, 21);
+            Console.Write($"HP: {health}/{MaxHealth}");
+            Console.SetCursorPosition(105, 24);
+            Console.Write("ATK: " + ATK + "  DEF: " + DEF);
+            Console.SetCursorPosition(100, 27);
+            Console.Write($"XP Needed to level up: {XPNeeded}");
+        }
+
+
 
         /// <summary>
         /// The method of interacting with the player.
@@ -311,11 +327,132 @@ namespace BrandonPlayerGen
                 Console.Write($"You have encourted {a.name}.");
                 Console.SetCursorPosition(20, 27);
                 Console.Write($"What do you do?");
+                
+                
 
-                while (true)
+                while (a.health > 0 && Health>0)
                 {
-                    
+                    Console.SetCursorPosition(20, 50);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("(N)ormal Attack");
+                    Console.SetCursorPosition(20, 51);
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("(H)eavy Attack");
+                    Console.SetCursorPosition(20, 52);
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write("(G)aurd");
+                    Console.SetCursorPosition(20, 53);
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    var entry = Console.ReadKey(true).Key;
+                    if(entry == ConsoleKey.N)
+                    {
+                        int attackDealt = ATK - a.defense;
+                        int damagetaken = a.attack - DEF;
+                        if (damagetaken < 0)
+                        {
+                            damagetaken = 0;
+                        }
+                        if (attackDealt < 3)
+                        {
+                            attackDealt = 3;
+                        }
+                        a.health -= attackDealt;
+                        Health -= damagetaken;
+                        Console.SetCursorPosition(20, 29);
+                        Console.Write($"You dealt {attackDealt}pts of damage to {a.name}");
+                        Console.SetCursorPosition(20, 30);
+                        Console.Write($"{a.name} dealt {damagetaken}pts of damage to you.");
+
+                        for (int i = 10; i <110;i++)
+                        {
+                            Console.SetCursorPosition(i, 12);
+                            Console.Write(" ");
+                        }
+                        Console.SetCursorPosition(10, 12);
+                        Console.Write($"HP: {Health}/{MaxHealth}");
+                        Console.SetCursorPosition(95, 12);
+                        Console.Write($"HP: {a.health}");
+
+                    }
+                    else if(entry == ConsoleKey.H)
+                    {
+                        int tempAttack = (int)Math.Floor(ATK * 1.5);
+                        int tempDefense = (int)Math.Floor(DEF *.5);
+                        int attackDealt = tempAttack - a.defense;
+                        int damagetaken = a.attack - tempDefense;
+                        if (damagetaken < 0)
+                        {
+                            damagetaken = 0;
+                        }
+                        if (attackDealt < 3)
+                        {
+                            attackDealt = 3;
+                        }
+                        a.health -= attackDealt;
+                        Health -= damagetaken;
+                        Console.SetCursorPosition(20, 29);
+                        Console.Write($"You dealt {attackDealt}pts of damage to {a.name}");
+                        Console.SetCursorPosition(20, 30);
+                        Console.Write($"{a.name} dealt {damagetaken}pts of damage to you.");
+
+                        for (int i = 10; i < 110; i++)
+                        {
+                            Console.SetCursorPosition(i, 12);
+                            Console.Write(" ");
+                        }
+                        Console.SetCursorPosition(10, 12);
+                        Console.Write($"HP: {Health}/{MaxHealth}");
+                        Console.SetCursorPosition(95, 12);
+                        Console.Write($"HP: {a.health}");
+                    }
+                    else if(entry == ConsoleKey.G)
+                    {
+                        int tempAttack = 0;
+                        int tempDefense = DEF * 2;
+                        int attackDealt = tempAttack - a.defense;
+                        int damagetaken = a.attack - tempDefense;
+                        if (damagetaken < 0)
+                        {
+                            damagetaken = 0;
+                        }
+                        if (attackDealt < 0)
+                        {
+                            attackDealt = 0;
+                        }
+                        a.health -= attackDealt;
+                        Health -= damagetaken;
+                        Console.SetCursorPosition(20, 29);
+                        Console.Write($"You dealt {attackDealt}pts of damage to {a.name}");
+                        Console.SetCursorPosition(20, 30);
+                        Console.Write($"{a.name} dealt {damagetaken}pts of damage to you.");
+
+                        for (int i = 10; i < 110; i++)
+                        {
+                            Console.SetCursorPosition(i, 12);
+                            Console.Write(" ");
+                        }
+                        Console.SetCursorPosition(10, 12);
+                        Console.Write($"HP: {Health}/{MaxHealth}");
+                        Console.SetCursorPosition(95, 12);
+                        Console.Write($"HP: {a.health}");
+                    }
+                    else
+                    {
+                        Console.SetCursorPosition(20, 55);
+                        Console.Write("Invalid Input: Hurry and pick a new option.");
+                    }
+
                 }
+
+                if (a.health <= 0)
+                {
+                    checkLevelUP(b, a);
+                }
+                Console.Clear();
+                b.showBoard();
+                b.FillStatusScreens();
+                PrintStatusScreen();
             }
         }
 
