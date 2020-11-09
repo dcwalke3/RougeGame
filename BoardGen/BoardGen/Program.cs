@@ -1,24 +1,30 @@
 ﻿using BrandonPlayerGen;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BoardGen
 {
-    class Program
+    
+    public class Program
+
     {
-        static void Main(string[] args)
+       
+        public static void Main(string[] args)
         {
 
             Board map = new Board();
             Player p;
+            
             while (true)
             {
                 
-                p = new Player(1, map);
+                p = new Player(10, map);
                 
                 Console.WriteLine(p);
                 Console.Write("\nWould you like a new character Y/n: ");
@@ -28,7 +34,8 @@ namespace BoardGen
                 }
                 Console.Clear();
             }
-            map.placeActor(p.CurrentDungeonLevel-1, p);
+            map.placeActor(p);
+            map.CheckPlayerPos(p);
             Console.Clear();
             Console.SetWindowSize(125,65);
             Console.SetBufferSize(125, 65);
@@ -36,25 +43,45 @@ namespace BoardGen
             
             Console.CursorVisible = false;
             
-            map.showBoard(0);
+            map.showBoard();
 
             
             
             p.FillStatusScreens();
             p.PrintStatusScreen();
-            Monster m = new Monster(map,p);
-            map.placeActor(0, m);
-           
+            int monsterCount = 10;
+            List<Monster> monsters = new List<Monster>();
+            for (int i = 0; i < monsterCount; i++)
+            {
+                Monster m = new Monster(p);
+               
+                map.placeActor(m);
+                monsters.Add(m);
+            }
+
+            map.showBoard();
             
+
             while (true)
             {
-                map.CheckPlayerPos();
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.BackgroundColor = ConsoleColor.White;
+                map.CheckPlayerPos(p);
+                
                 Console.SetCursorPosition(0,63);
                 p.Move(map,p);
+                p.Death(map);
+                for (int i=0; i<monsters.Count;i++)
+                {
+                    if (monsters[i].health <= 0)
+                    {                        
+                        monsters[i].Death(map);
+                        monsters.RemoveAt(i);
+                        
+                    }
 
-                
+                    monsters[i].Move(map, monsters[i]);
+                }
+
+
 
                 if (p.Health <= 0) {
                     break;
@@ -64,6 +91,8 @@ namespace BoardGen
             
         }
 
-
+        
     }
+
+
 }

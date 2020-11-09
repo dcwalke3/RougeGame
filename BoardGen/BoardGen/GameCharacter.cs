@@ -31,13 +31,18 @@ namespace BoardGen
 
 	public interface IActor
 	{
+		int health { get; set; }
+		int attack { get; set; }
+		int defense { get; set; }
+		string name { get; set; }
+        int level { get; set; }
 		int row { get; set; }
 		int col { get; set; }
 		string symbol { get; }
 		ConsoleColor foreColor { get; }
 		ConsoleColor backColor { get; }
 
-		void Move(Board b, Player p);
+		void Move(Board b, IActor p);
 		void Interact(Board b, IActor a);
 		void Death(Board b);
 	}

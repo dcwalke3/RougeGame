@@ -1,21 +1,43 @@
 ﻿using BoardGen;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BrandonPlayerGen
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    
     public class Player: GameCharacter, IActor
     {
+        /// <summary>
+        /// Class for player that derives the 
+        /// GameCharacter class as well as
+        /// the interface IActor.
+        /// </summary>
+        /// <param name="name">Name of the character.</param>
+        /// <param name="level">Level of the player</param>
+        /// <param name="ATK">Attack stat of the character.</param>
+        /// <param name="DEF">Defense stat of the character.</param>
+        /// <param name="MaxHealth">Max health the player can reach for his level.</param>
+        /// <param name="Health">Current health the player has (i.e HP: 80/110  here 80=health and 110=maxhealth).</param>
+        /// <param name="History">History of the player's character.</param>
+        /// <param name="HomeTown">Hometown of the player's character.</param>
+        /// <param name="Parents">Parents of the player's character.</param>
+        /// <param name="Job">Job of the player's character.</param>
+        /// <param name="trivia">Random trivia of the player's character.</param>
+        /// <param name="CurrentDungeonLevel">The current dungeon level the player is on .of the player's character.</param>
+        /// <param name="XPNeeded">The amount of EXP points needed to level up.</param>
+        /// <param name="CurrentXP">The amount of EXP points a player has earned since last level up.</param>
+        /// <param name="TotalXP">Total all time amount of EXP earned.</param>
+
         public new string name;
         public int ATK;
         public int DEF;
+        public int MaxHealth;
         public int Health;
         public string HomeTown;
         public string Parents;
@@ -23,10 +45,15 @@ namespace BrandonPlayerGen
         public string trivia;
         public int CurrentDungeonLevel;
         public string History;
+        public int XPNeeded;
+        public int CurrentXP;
+        public int TotalXP;
         
 
         
-
+        /// <summary>
+        /// IActor interface added.
+        /// </summary>
         ConsoleColor IActor.foreColor => ConsoleColor.Green;
 
         ConsoleColor IActor.backColor => ConsoleColor.Black;
@@ -35,10 +62,18 @@ namespace BrandonPlayerGen
 
         int IActor.row { get; set; }
         int IActor.col { get; set; }
+        int IActor.level { get; set; }
 
+        
+        /// <summary>
+        /// Player Constructor
+        /// </summary>
+        /// <param name="plevel">The level the player should enter as.</param>
+        /// <param name="b">The map  the player is on.</param>
         public Player(int plevel, Board b)
         {
-                level = plevel;
+            TotalXP = 0;    
+             level= plevel;
                 string[] hometownList = {"Williamsburg","Bikini Bottom","SouthPark","Atlantis",
                 "Gotham","Millesville"};
 
@@ -78,7 +113,8 @@ namespace BrandonPlayerGen
 
                 Console.Clear();
 
-                Health = (StaticRandom.Instance.Next(50, 100) + (level*5));
+                MaxHealth = (StaticRandom.Instance.Next(50, 100) + (level*5));
+                Health = MaxHealth;
                 ATK = (StaticRandom.Instance.Next(10, 20) + level);
                 DEF = (StaticRandom.Instance.Next(10, 20) + level);
                 History = $"\nYou are a {job} from {HomeTown}. \nYour Parents " +
@@ -90,13 +126,15 @@ namespace BrandonPlayerGen
 
         public override string ToString()
         {
-            return $"Name: {name}\nLevel: {level}\nHP: {Health}\nAttack: {ATK}  Defense: {DEF}\nBackground: {History};";
+            return $"Name: {name}\nLevel: {level}\nHP: {MaxHealth}\nAttack: {ATK}  Defense: {DEF}\nBackground: {History};";
         }
 
 
 
 
-        // These 2 functions are for 
+        /// <summary>
+        /// Fills the side and bottom with color for the status screen.
+        /// </summary>        
         public void FillStatusScreens()
         {
             for (int i = 0; i < 64; i++)
@@ -121,6 +159,9 @@ namespace BrandonPlayerGen
             }
         }
 
+        /// <summary>
+        /// Prints the Status Screen/HUD for the player on the right.
+        /// </summary>
         public void PrintStatusScreen()
         {
             Console.BackgroundColor = ConsoleColor.Yellow;
@@ -134,19 +175,60 @@ namespace BrandonPlayerGen
             Console.SetCursorPosition(105, 18);
             Console.Write("Level: " + level);
             Console.SetCursorPosition(105, 21);
-            Console.Write("HP: " + Health);
+            Console.Write($"HP: {Health}/{MaxHealth}");
             Console.SetCursorPosition(105,24);
             Console.Write("ATK: " + ATK+ "  DEF: " + DEF);
-            
+            Console.SetCursorPosition(100, 27);
+            Console.Write($"XP Needed to level up: {XPNeeded}");
+
         }
 
-        
-
-        public void LevelUp(Board b, Player p)
+        /// <summary>
+        /// Checks if the player has recieved enough exp to level up.
+        /// </summary>
+        /// <param name="board">Map</param>
+        /// <param name="player">Player</param>
+        /// <param name="m">Monster killed</param>
+        public void checkLevelUP(Board board, Player player, Monster m=null)
         {
-            Health += Random.randInt(4, 8);
-            ATK += Random.randInt(2, 4);
-            DEF += Random.randInt(2, 4);
+            
+            int XPGained = (int)Math.Floor((m.level + 5) * 1.2);
+            TotalXP += XPGained;
+            CurrentXP += XPGained;
+            XPNeeded = (int)Math.Floor((level - 1 + level) * 1.2);
+            Console.SetCursorPosition(5, 58);
+            Console.Write($"You gained {XPGained} EXP.");
+            if (CurrentXP > XPNeeded)
+            {
+
+                int xpgained = CurrentXP - XPNeeded;
+                LevelUp(board, player,xpgained);
+            }
+            else
+            {
+                Console.SetCursorPosition(5, 59);
+                Console.Write($"{XPNeeded} EXP until next level up.");
+            }
+        }
+
+        /// <summary>
+        /// Function used to increase player level and stats.
+        /// </summary>
+        /// <param name="b">Map.</param>
+        /// <param name="p">Player.</param>
+        /// <param name="xpsurplus">The excess amount of EXP gained.</param>
+        public void LevelUp(Board b, Player p, int xpsurplus)
+        {
+            MaxHealth += Random.randInt(8, 16);
+            ATK += Random.randInt(4, 8);
+            DEF += Random.randInt(4,8);
+            level++;
+            CurrentXP = xpsurplus;
+            checkLevelUP(b, p);
+            Health = MaxHealth;
+            XPNeeded = (int)Math.Floor((level - 1 + level) * 1.2);
+            Console.SetCursorPosition(5, 59);
+            Console.Write($"You have increased your level to lvl {level}");
             b.UpdateStatus(p);
         }
 
@@ -156,243 +238,262 @@ namespace BrandonPlayerGen
         
         
 
-        void IActor.Interact(Board b, IActor a)
+        /// <summary>
+        /// The method of interacting with the player.
+        /// </summary>
+        /// <param name="b">The Board it will take place on.</param>
+        /// <param name="a">The IActor to be interacted with</param>
+        public void Interact(Board b, IActor a)
         {
-            throw new NotImplementedException();
+            if (a is Monster)
+            {
+                Console.Clear();
+                Console.SetCursorPosition(55, 25);
+                Console.BackgroundColor = ConsoleColor.Blue;
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write($"{name} lvl: {level}");
+                Console.BackgroundColor = ConsoleColor.Black;
+                Console.SetCursorPosition(60, 28);
+                Console.Write("vs");
+                Console.SetCursorPosition(55, 31);
+                Console.BackgroundColor = ConsoleColor.Red;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write($"{a.name} lvl: {a.level}");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.BackgroundColor = ConsoleColor.Black;
+                
+                Console.Clear();
+                string battletext =
+
+       @"
+                                ██████╗  █████╗ ████████╗████████╗██╗     ███████╗
+                                ██╔══██╗██╔══██╗╚══██╔══╝╚══██╔══╝██║     ██╔════╝
+                                ██████╔╝███████║   ██║      ██║   ██║     █████╗  
+                                ██╔══██╗██╔══██║   ██║      ██║   ██║     ██╔══╝  
+                                ██████╔╝██║  ██║   ██║      ██║   ███████╗███████╗
+                                ╚═════╝ ╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚══════╝╚══════╝
+                                                  
+";
+
+                Console.SetCursorPosition(15, 5);
+                Console.Write(battletext);
+                Console.SetCursorPosition(10, 10);
+                Console.Write($"{name} lvl: {level}");
+                Console.SetCursorPosition(10, 12);
+                Console.Write($"HP: {Health}/{MaxHealth}");
+                Console.SetCursorPosition(95, 10);
+                Console.Write($"{a.name} lvl: {a.level}");
+                Console.SetCursorPosition(95, 12);
+                Console.Write($"HP: {a.health}");
+
+
+                Console.SetCursorPosition(50,19);
+                Console.Write("Combat Log");
+
+                for (int i=16; i < 97; i++)
+                {
+                    Console.SetCursorPosition(i,20);
+                    Console.Write("=");
+                }
+                for (int i = 21; i < 55; i++)
+                {
+                    Console.SetCursorPosition(15, i);
+                    Console.Write("||");
+                    Console.SetCursorPosition(97, i);
+                    Console.Write("||");
+                }
+                for (int i = 16; i < 97; i++)
+                {
+                    Console.SetCursorPosition(i, 55);
+                    Console.Write("=");
+                }
+                Console.SetCursorPosition(20, 25);
+                Console.Write($"You have encourted {a.name}.");
+                Console.SetCursorPosition(20, 27);
+                Console.Write($"What do you do?");
+
+                while (true)
+                {
+                    
+                }
+            }
         }
 
-        void IActor.Death(Board b)
+        /// <summary>
+        /// Causes a game over for the player due to player death.
+        /// </summary>
+        /// <param name="b">The map.</param>
+        public void Death(Board b)
         {
-            throw new NotImplementedException();
+            Console.Clear();
+            string gameOver = @"
+ .----------------.  .----------------.  .----------------.   .----------------.  .----------------.  .----------------.  .----------------. 
+| .--------------. || .--------------. || .--------------. | | .--------------. || .--------------. || .--------------. || .--------------. |
+| |  ____  ____  | || |     ____     | || | _____  _____ | | | |  ________    | || |     _____    | || |  _________   | || |  ________    | |
+| | |_  _||_  _| | || |   .'    `.   | || ||_   _||_   _|| | | | |_   ___ `.  | || |    |_   _|   | || | |_   ___  |  | || | |_   ___ `.  | |
+| |   \ \  / /   | || |  /  .--.  \  | || |  | |    | |  | | | |   | |   `. \ | || |      | |     | || |   | |_  \_|  | || |   | |   `. \ | |
+| |    \ \/ /    | || |  | |    | |  | || |  | '    ' |  | | | |   | |    | | | || |      | |     | || |   |  _|  _   | || |   | |    | | | |
+| |    _|  |_    | || |  \  `--'  /  | || |   \ `--' /   | | | |  _| |___.' / | || |     _| |_    | || |  _| |___/ |  | || |  _| |___.' / | |
+| |   |______|   | || |   `.____.'   | || |    `.__.'    | | | | |________.'  | || |    |_____|   | || | |_________|  | || | |________.'  | |
+| |              | || |              | || |              | | | |              | || |              | || |              | || |              | |
+| '--------------' || '--------------' || '--------------' | | '--------------' || '--------------' || '--------------' || '--------------' |
+ '----------------'  '----------------'  '----------------'   '----------------'  '----------------'  '----------------'  '----------------' 
+";
+            Console.Write(gameOver);
         }
 
-        public void Move(Board b, Player p)
+        
+        /// <summary>
+        /// Moves the player around the board based off of WASD input.
+        /// </summary>
+        /// <param name="b">The map.</param>
+        /// <param name="actor">The player.</param>
+        public void Move(Board b, IActor actor)
         {
             var keyCheck = Console.ReadKey(true).Key;
-            if (keyCheck == ConsoleKey.W)
+            if (keyCheck == ConsoleKey.S)
             {
-                if ((b.playerCords[1] - 1) < 0 || b.board[b.playerCords[0], (b.playerCords[1] - 1), b.playerCords[2]].symbol == "#")
+                if (b.board[actor.row + 1, actor.col].symbol == "#")
                 {
 
                 }
-                else if (b.board[b.playerCords[0], (b.playerCords[1] - 1), b.playerCords[2]].stairs)
+                else if (b.board[actor.row + 1, actor.col].stairs)
                 {
-                    Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    b.board[b.playerCords[0], b.playerCords[1], b.playerCords[2]] = floor;
-                    if (b.board[b.playerCords[0], (b.playerCords[1] - 1), b.playerCords[2]].symbol == "v")
-                    {
-                        if ((b.playerCords[0] + 1) == b.NumofFloors)
-                        {
-
-                        }
-
-                        else
-                        {
-
-                            b.playerCords[0]++;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
-
-                    else if (b.board[b.playerCords[0], (b.playerCords[1] - 1), b.playerCords[2]].symbol == "^")
-                    {
-                        if ((b.playerCords[0] - 1) == b.NumofFloors)
-                        {
-
-                        }
-                        else
-                        {
-                            b.playerCords[0]--;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
+                    CurrentDungeonLevel++;
+                    b.makeBoard(b.height, b.width);
+                    b.CreateRooms();
+                    b.MakeCorridors();
+                    b.placeStairs();
+                    b.placeActor(actor);
+                    b.FillStatusScreens();
+                    b.showBoard();
+                }
+                else if(b.board[actor.row + 1, actor.col].Occupied != null)
+                {
+                    IActor c = b.board[actor.row + 1, actor.col].Occupied;
+                    actor.Interact(b, c);
                 }
                 else
                 {
+                    Tile player = new Tile(actor.symbol, actor.backColor, actor.foreColor, false, actor);
                     Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("@", ConsoleColor.Green, ConsoleColor.Black, false, a);
-                    b.board[b.playerCords[0], (b.playerCords[1] - 1), b.playerCords[2]] = player;
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]] = floor;
-                    Console.SetCursorPosition(b.playerCords[2], (b.playerCords[1]));
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]].DrawTile();
-                    Console.SetCursorPosition(b.playerCords[2], (b.playerCords[1] - 1));
-                    b.board[b.playerCords[0], (b.playerCords[1] - 1), b.playerCords[2]].DrawTile();
-                    b.playerCords[1]--;
+                    b.board[actor.row + 1, actor.col] = player;
+                    b.board[actor.row, actor.col] = floor;
+                    Console.SetCursorPosition(actor.col, actor.row);
+                    b.board[actor.row, actor.col].DrawTile();
+                    Console.SetCursorPosition(actor.col, actor.row + 1);
+                    b.board[actor.row + 1, actor.col].DrawTile();
                 }
             }
 
-            else if (keyCheck == ConsoleKey.S)
+            else if (keyCheck == ConsoleKey.W)
             {
-                if ((b.playerCords[0] + 1 > (b.height - 1)) || b.board[b.playerCords[0], (b.playerCords[1] + 1), b.playerCords[2]].symbol == "#")
+                if (b.board[actor.row - 1, actor.col].symbol == "#")
                 {
 
                 }
-                else if (b.board[b.playerCords[0], (b.playerCords[1] + 1), b.playerCords[2]].stairs)
+                else if (b.board[actor.row - 1, actor.col].stairs)
                 {
-                    Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    b.board[b.playerCords[0], b.playerCords[1], b.playerCords[2]] = floor;
-                    if (b.board[b.playerCords[0], (b.playerCords[1] + 1), b.playerCords[2]].symbol == "v")
-                    {
-                        if ((b.playerCords[0] + 1) == b.NumofFloors)
-                        {
+                    CurrentDungeonLevel++;
+                    b.makeBoard(b.height, b.width);
+                    b.CreateRooms();
+                    b.MakeCorridors();
+                    b.placeStairs();
+                    b.placeActor(actor);
+                    b.showBoard();
+                    b.FillStatusScreens();
+                    PrintStatusScreen();
 
-                        }
-
-                        else
-                        {
-                            b.playerCords[0]++;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
-
-                    else if (b.board[b.playerCords[0], (b.playerCords[1] + 1), b.playerCords[2]].symbol == "^")
-                    {
-                        if ((b.playerCords[0] - 1) == b.NumofFloors)
-                        {
-
-                        }
-                        else
-                        {
-                            b.playerCords[0]--;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
+                }
+                else if (b.board[actor.row - 1, actor.col].Occupied != null)
+                {
+                    IActor c = b.board[actor.row - 1, actor.col].Occupied;
+                    actor.Interact(b, c);
                 }
                 else
                 {
+                    Tile player = new Tile(actor.symbol, actor.backColor, actor.foreColor, false, actor);
                     Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("@", ConsoleColor.Green, ConsoleColor.Black, false, true);
-                    b.board[b.playerCords[0], (b.playerCords[1] + 1), b.playerCords[2]] = player;
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]] = floor;
-                    Console.SetCursorPosition(b.playerCords[2], (b.playerCords[1]));
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]].DrawTile();
-                    Console.SetCursorPosition(b.playerCords[2], (b.playerCords[1] + 1));
-                    b.board[b.playerCords[0], (b.playerCords[1] + 1), b.playerCords[2]].DrawTile();
-                    b.playerCords[1]++;
-                }
-            }
-
-            else if (keyCheck == ConsoleKey.A)
-            {
-                if ((b.playerCords[2] - 1) < 0 || b.board[b.playerCords[0], b.playerCords[1], (b.playerCords[2] - 1)].symbol == "#")
-                {
-
-                }
-                else if (b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] - 1].stairs)
-                {
-                    Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    b.board[b.playerCords[0], b.playerCords[1], b.playerCords[2]] = floor;
-                    if (b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] - 1].symbol == "v")
-                    {
-                        if ((b.playerCords[0] + 1) == b.NumofFloors)
-                        {
-
-                        }
-
-                        else
-                        {
-                            b.playerCords[0]++;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
-
-                    else if (b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] - 1].symbol == "^")
-                    {
-
-                        if ((b.playerCords[0] - 1) == b.NumofFloors)
-                        {
-
-                        }
-                        else
-                        {
-
-                            b.playerCords[0]--;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
-                }
-                else
-                {
-                    Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("@", ConsoleColor.Green, ConsoleColor.Black, false, true);
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] - 1] = player;
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]] = floor;
-                    Console.SetCursorPosition((b.playerCords[2] - 1), b.playerCords[1]);
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] - 1].DrawTile();
-                    Console.SetCursorPosition(b.playerCords[2], (b.playerCords[1]));
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]].DrawTile();
-                    b.playerCords[2]--;
+                    b.board[actor.row - 1, actor.col] = player;
+                    b.board[actor.row, actor.col] = floor;
+                    Console.SetCursorPosition(actor.col, actor.row);
+                    b.board[actor.row, actor.col].DrawTile();
+                    Console.SetCursorPosition(actor.col, actor.row - 1);
+                    b.board[actor.row - 1, actor.col].DrawTile();
                 }
             }
 
             else if (keyCheck == ConsoleKey.D)
             {
-                if ((b.playerCords[2] + 1) < 0 || b.board[b.playerCords[0], b.playerCords[1], (b.playerCords[2] + 1)].symbol == "#")
+                if (b.board[actor.row, actor.col+1].symbol == "#")
                 {
 
                 }
-                else if (b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] + 1].stairs)
+                else if (b.board[actor.row, actor.col+1].stairs)
                 {
-                    Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    b.board[b.playerCords[0], b.playerCords[1], b.playerCords[2]] = floor;
-                    if (b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] + 1].symbol == "v")
-                    {
-                        if ((b.playerCords[0] + 1) == b.NumofFloors)
-                        {
-
-                        }
-
-                        else
-                        {
-                            b.playerCords[0]++;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
-
-                    else if (b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] + 1].symbol == "^")
-                    {
-                        if ((b.playerCords[0] - 1) == b.NumofFloors)
-                        {
-
-                        }
-                        else
-                        {
-                            b.playerCords[0]--;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
-
+                    CurrentDungeonLevel++;
+                    b.makeBoard(b.height, b.width);
+                    b.CreateRooms();
+                    b.MakeCorridors();
+                    b.placeStairs();
+                    b.placeActor(actor);
+                    b.showBoard();
+                    b.FillStatusScreens();
+                    PrintStatusScreen();
+                }
+                else if (b.board[actor.row, actor.col+1].Occupied != null)
+                {
+                    IActor c = b.board[actor.row, actor.col+1].Occupied;
+                    actor.Interact(b, c);
                 }
                 else
                 {
+                    Tile player = new Tile(actor.symbol, actor.backColor, actor.foreColor, false, actor);
                     Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("@", ConsoleColor.Green, ConsoleColor.Black, false, true);
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] + 1] = player;
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]] = floor;
-                    Console.SetCursorPosition((b.playerCords[2]), b.playerCords[1]);
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]].DrawTile();
-                    Console.SetCursorPosition(b.playerCords[2] + 1, (b.playerCords[1]));
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] + 1].DrawTile();
-                    b.playerCords[2]++;
+                    b.board[actor.row, actor.col+1] = player;
+                    b.board[actor.row, actor.col] = floor;
+                    Console.SetCursorPosition(actor.col, actor.row);
+                    b.board[actor.row, actor.col].DrawTile();
+                    Console.SetCursorPosition(actor.col+1, actor.row);
+                    b.board[actor.row, actor.col+1].DrawTile();
                 }
             }
 
+            else if (keyCheck == ConsoleKey.A)
+            {
+                if (b.board[actor.row, actor.col - 1].symbol == "#")
+                {
+
+                }
+                else if (b.board[actor.row, actor.col - 1].stairs)
+                {
+                    CurrentDungeonLevel++;
+                    b.makeBoard(b.height, b.width);
+                    b.CreateRooms();
+                    b.MakeCorridors();
+                    b.placeStairs();
+                    b.placeActor(actor);
+                    b.showBoard(); 
+                    b.FillStatusScreens();
+                    PrintStatusScreen();                
+                }
+                else if (b.board[actor.row, actor.col-1].Occupied != null)
+                {
+                    IActor c = b.board[actor.row, actor.col-1].Occupied;
+                    actor.Interact(b, c);
+                }
+                else
+                {
+                    Tile player = new Tile(actor.symbol, actor.backColor, actor.foreColor, false, actor);
+                    Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
+                    b.board[actor.row, actor.col - 1] = player;
+                    b.board[actor.row, actor.col] = floor;
+                    Console.SetCursorPosition(actor.col, actor.row);
+                    b.board[actor.row, actor.col].DrawTile();
+                    Console.SetCursorPosition(actor.col - 1, actor.row);
+                    b.board[actor.row, actor.col - 1].DrawTile();
+                }
+            }
         }
     }
 }

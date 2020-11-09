@@ -1,7 +1,9 @@
 ﻿using BrandonPlayerGen;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,15 +13,10 @@ namespace BoardGen
     public class Monster : GameCharacter, IActor
     {
 
-        public Monster(Board b, Player a)
+        public Monster(Player a)
         {
-            level = BrandonPlayerGen.Random.randInt(a.level-1, a.level + 1);
-            if (level == 0)
-            {
-                level ++;
-            }
-            attack = (level * 3) + 10;
-            defense = (level * 2) + 10;
+            attack = (level* 3) + 10;
+            defense = ( level* 2) + 10;
             health = (level + 15) * 2;
 
 
@@ -33,6 +30,17 @@ namespace BoardGen
 
 
 
+        int IActor.level 
+        { 
+            get {
+                return 1;
+                }
+            set
+            {
+
+            }
+        }
+           
         int IActor.row { get; set; }
         int IActor.col { get; set; }
 
@@ -42,245 +50,138 @@ namespace BoardGen
 
         ConsoleColor IActor.backColor => ConsoleColor.Yellow;
 
+        
+
 
         public void Death(Board b)
         {
-            throw new NotImplementedException();
+            Console.SetCursorPosition(5, 56);
+            string deathmessage = $"{name} lvl {level} has died.";
+            Console.SetCursorPosition(5, 57);
+            
         }
+
 
         public void Interact(Board b, IActor a)
         {
-            throw new NotImplementedException();
+            
         }
 
-        public void Move(Board b, Player p)
+        public void Move(Board b, IActor a)
         {
-            int randomDirection = BrandonPlayerGen.Random.randInt(1, 4);
+            int randomDirection = BrandonPlayerGen.Random.randInt(1, 5);
             if (randomDirection == 1)
             {
-                if ((b.playerCords[1] - 1) < 0 || b.board[b.playerCords[0], (b.playerCords[1] - 1), b.playerCords[2]].symbol == "#")
+                if (b.board[a.row + 1, a.col].symbol == "#")
                 {
 
                 }
-                else if (b.board[b.playerCords[0], (b.playerCords[1] - 1), b.playerCords[2]].stairs)
+                else if (b.board[a.row + 1, a.col].stairs)
                 {
-                    Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    b.board[b.playerCords[0], b.playerCords[1], b.playerCords[2]] = floor;
-                    if (b.board[b.playerCords[0], (b.playerCords[1] - 1), b.playerCords[2]].symbol == "v")
-                    {
-                        if ((b.playerCords[0] + 1) == b.NumofFloors)
-                        {
 
-                        }
+                }
 
-                        else
-                        {
-
-                            b.playerCords[0]++;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
-
-                    else if (b.board[b.playerCords[0], (b.playerCords[1] - 1), b.playerCords[2]].symbol == "^")
-                    {
-                        if ((b.playerCords[0] - 1) == b.NumofFloors)
-                        {
-
-                        }
-                        else
-                        {
-                            b.playerCords[0]--;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
+                else if (b.board[a.row + 1, a.col].Occupied != null)
+                {
+                    Interact(b, a);
                 }
                 else
                 {
+                    Tile monster = new Tile(a.symbol, a.backColor, a.foreColor, false, a);
                     Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("!", ConsoleColor.Red, ConsoleColor.Yellow, false, true);
-                    b.board[b.playerCords[0], (b.playerCords[1] - 1), b.playerCords[2]] = player;
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]] = floor;
-                    Console.SetCursorPosition(b.playerCords[2], (b.playerCords[1]));
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]].DrawTile();
-                    Console.SetCursorPosition(b.playerCords[2], (b.playerCords[1] - 1));
-                    b.board[b.playerCords[0], (b.playerCords[1] - 1), b.playerCords[2]].DrawTile();
-                    b.playerCords[1]--;
+                    b.board[a.row + 1, a.col] = monster;
+                    b.board[a.row, a.col] = floor;
+                    Console.SetCursorPosition(a.col, a.row);
+                    b.board[a.row, a.col].DrawTile();
+                    Console.SetCursorPosition(a.col, a.row + 1);
+                    b.board[a.row + 1, a.col].DrawTile();
+                    a.row++;
                 }
             }
 
             else if (randomDirection == 2)
             {
-                if ((b.playerCords[0] + 1 > (b.height - 1)) || b.board[b.playerCords[0], (b.playerCords[1] + 1), b.playerCords[2]].symbol == "#")
+                if (b.board[a.row - 1, a.col].symbol == "#")
                 {
 
                 }
-                else if (b.board[b.playerCords[0], (b.playerCords[1] + 1), b.playerCords[2]].stairs)
+                else if (b.board[a.row - 1, a.col].stairs)
                 {
-                    Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    b.board[b.playerCords[0], b.playerCords[1], b.playerCords[2]] = floor;
-                    if (b.board[b.playerCords[0], (b.playerCords[1] + 1), b.playerCords[2]].symbol == "v")
-                    {
-                        if ((b.playerCords[0] + 1) == b.NumofFloors)
-                        {
 
-                        }
-
-                        else
-                        {
-                            b.playerCords[0]++;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
-
-                    else if (b.board[b.playerCords[0], (b.playerCords[1] + 1), b.playerCords[2]].symbol == "^")
-                    {
-                        if ((b.playerCords[0] - 1) == b.NumofFloors)
-                        {
-
-                        }
-                        else
-                        {
-                            b.playerCords[0]--;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
+                }
+                else if (b.board[a.row - 1, a.col].Occupied != null)
+                {
+                    Interact(b, a);
                 }
                 else
                 {
+                    Tile monster = new Tile(a.symbol, a.backColor, a.foreColor, false, a);
                     Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("!",ConsoleColor.Red, ConsoleColor.Yellow,false, true);
-                    b.board[b.playerCords[0], (b.playerCords[1] + 1), b.playerCords[2]] = player;
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]] = floor;
-                    Console.SetCursorPosition(b.playerCords[2], (b.playerCords[1]));
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]].DrawTile();
-                    Console.SetCursorPosition(b.playerCords[2], (b.playerCords[1] + 1));
-                    b.board[b.playerCords[0], (b.playerCords[1] + 1), b.playerCords[2]].DrawTile();
-                    b.playerCords[1]++;
+                    b.board[a.row - 1, a.col] = monster;
+                    b.board[a.row, a.col] = floor;
+                    Console.SetCursorPosition(a.col, a.row);
+                    b.board[a.row, a.col].DrawTile();
+                    Console.SetCursorPosition(a.col, a.row - 1);
+                    b.board[a.row - 1, a.col].DrawTile();
+                    a.row--;
                 }
             }
 
             else if (randomDirection==3)
             {
-                if ((b.playerCords[2] - 1) < 0 || b.board[b.playerCords[0], b.playerCords[1], (b.playerCords[2] - 1)].symbol == "#")
+                if (b.board[a.row, a.col+1].symbol == "#")
                 {
 
                 }
-                else if (b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] - 1].stairs)
+                else if (b.board[a.row , a.col+1].stairs)
                 {
-                    Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    b.board[b.playerCords[0], b.playerCords[1], b.playerCords[2]] = floor;
-                    if (b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] - 1].symbol == "v")
-                    {
-                        if ((b.playerCords[0] + 1) == b.NumofFloors)
-                        {
 
-                        }
-
-                        else
-                        {
-                            b.playerCords[0]++;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
-
-                    else if (b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] - 1].symbol == "^")
-                    {
-
-                        if ((b.playerCords[0] - 1) == b.NumofFloors)
-                        {
-
-                        }
-                        else
-                        {
-
-                            b.playerCords[0]--;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
+                }
+                else if (b.board[a.row, a.col+1].Occupied != null)
+                {
+                    Interact(b, a);
                 }
                 else
                 {
+                    Tile monster = new Tile(a.symbol, a.backColor, a.foreColor, false, a);
                     Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("!", ConsoleColor.Red, ConsoleColor.Yellow, false, true);
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] - 1] = player;
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]] = floor;
-                    Console.SetCursorPosition((b.playerCords[2] - 1), b.playerCords[1]);
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] - 1].DrawTile();
-                    Console.SetCursorPosition(b.playerCords[2], (b.playerCords[1]));
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]].DrawTile();
-                    b.playerCords[2]--;
+                    b.board[a.row, a.col+1] = monster;
+                    b.board[a.row, a.col] = floor;
+                    Console.SetCursorPosition(a.col, a.row);
+                    b.board[a.row, a.col].DrawTile();
+                    Console.SetCursorPosition(a.col+1, a.row);
+                    b.board[a.row, a.col+1].DrawTile();
+                    a.col++;
                 }
             }
 
-            else if (randomDirection == 4)
+            else
             {
-                if ((b.playerCords[2] + 1) < 0 || b.board[b.playerCords[0], b.playerCords[1], (b.playerCords[2] + 1)].symbol == "#")
+                if (b.board[a.row, a.col - 1].symbol == "#")
                 {
 
                 }
-                else if (b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] + 1].stairs)
+                else if (b.board[a.row, a.col -1].stairs)
                 {
-                    Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    b.board[b.playerCords[0], b.playerCords[1], b.playerCords[2]] = floor;
-                    if (b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] + 1].symbol == "v")
-                    {
-                        if ((b.playerCords[0] + 1) == b.NumofFloors)
-                        {
 
-                        }
-
-                        else
-                        {
-                            b.playerCords[0]++;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
-
-                    else if (b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] + 1].symbol == "^")
-                    {
-                        if ((b.playerCords[0] - 1) == b.NumofFloors)
-                        {
-
-                        }
-                        else
-                        {
-                            b.playerCords[0]--;
-                            b.placeActor(b.playerCords[0]);
-                            b.showBoard(b.playerCords[0]);
-                            b.updateFloor();
-                        }
-                    }
-
+                }
+                else if (b.board[a.row, a.col - 1].Occupied != null)
+                {
+                    Interact(b, a);
                 }
                 else
                 {
+                    Tile monster = new Tile(a.symbol, a.backColor, a.foreColor, false, a);
                     Tile floor = new Tile(".", ConsoleColor.White, ConsoleColor.Black);
-                    Tile player = new Tile("!", ConsoleColor.Red, ConsoleColor.Yellow, false, true);
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] + 1] = player;
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]] = floor;
-                    Console.SetCursorPosition((b.playerCords[2]), b.playerCords[1]);
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2]].DrawTile();
-                    Console.SetCursorPosition(b.playerCords[2] + 1, (b.playerCords[1]));
-                    b.board[b.playerCords[0], (b.playerCords[1]), b.playerCords[2] + 1].DrawTile();
-                    b.playerCords[2]++;
+                    b.board[a.row, a.col - 1] = monster;
+                    b.board[a.row, a.col] = floor;
+                    Console.SetCursorPosition(a.col, a.row);
+                    b.board[a.row, a.col].DrawTile();
+                    Console.SetCursorPosition(a.col - 1, a.row);
+                    b.board[a.row, a.col - 1].DrawTile();
+                    a.col--;
                 }
             }
-
-
         }
     }
 }

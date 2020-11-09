@@ -14,23 +14,18 @@ namespace BrandonPlayerGen
         public ConsoleColor backColor;
         public bool stairs;
         public IActor Occupied;
-        public bool enemy;
-        public bool npc;
+        
         
 
         public Tile(string boardSymbol, ConsoleColor
             back, ConsoleColor fore, bool stairsHere = false, 
-            IActor playerHere = null,
-            bool enemyHere = false,
-            bool NPC = false)
+            IActor actorHere = null)
         {
             backColor = back;
             foreColor = fore;
             symbol = boardSymbol;
             stairs = stairsHere;
-            Occupied = playerHere;
-            enemy = enemyHere;
-            npc = NPC;
+            Occupied = actorHere;
         }
         
         // Converts Tile to something able to be written on.
